@@ -20,7 +20,7 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
       - name: Build
-        run: yarn build
+        run: 'yarn build --base="/ifg-vis/"'
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
