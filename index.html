@@ -1,159 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <title>IFG-Anfragen</title>
-    <link rel="stylesheet" href="ifganfragen.css">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <link
+      rel="stylesheet"
+      href="https://static.frag-den-staat.de/static/css/main.css"
+    />
   </head>
   <body>
-    <a id="auswahl-button" class="button" href="#auswahl">Institutionen wählen</a>
-    <h2>
-      Wie vielen IFG-Anfragen wird stattgegeben?
-    </h2>
-    <div class="clearfix"></div>
-    <div id="auswahl" class="auswahl" style="display:none">
-      <a class="close" href="#"></a>
-      <div class="clearfix"></div>
-      <ul class="auswahl-liste">
-        <li>
-          <label><input type="checkbox" name="show" value="BK"><span>Kanzleramt</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMAS"><span>Arbeitsministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="AA"><span>Auswärtiges Amt</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMI"><span>Innenministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMJV"><span>Justizministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMF"><span>Finanzministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMWi"><span>Wirtschaftsministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMEL"><span>Verbraucherschutzministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMVg"><span>Verteidigungsministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMFSFJ"><span>Familienministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMG"><span>Gesundheitsministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMVI"><span>Verkehrsministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMUB"><span>Umweltministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMBF"><span>Bildungsministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BKM"><span>Beauftragter für Kultur und Medien</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BMZ"><span>Entwicklungsministerium</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BPA"><span>Bundespresseamt</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BPrA"><span>Bundespräsidialamt</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BT"><span>Bundestag</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BR"><span>Bundesrat</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BBank"><span>Bundesbank</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BfDI"><span>Datenschutz/Informationsfreiheit</span></label>
-        </li>
-        <li>
-          <label><input type="checkbox" name="show" value="BRH"><span>Bundesrechnungshof</span></label>
-        </li>
-      </ul>
-      <div class="clearfix"></div>
-      <a class="button grey" id="choose-all" href="#">alle wählen</a> <a class="button grey" id="choose-none" href="#">keine wählen</a>
-      <div class="clearfix"></div>
-    </div>
     <div id="vis"></div>
-    <script src="js/d3.v3.min.js" type="text/javascript"></script>
-    <script src="js/jquery.min.js" type="text/javascript"></script>
-    <script src="js/underscore.min.js" type="text/javascript"></script>
-    <script src="js/backbone.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-      var IFGVis = IFGVis || {};
-      IFGVis.colors = {
-       "BK": "#593A68",
-       "BMAS": "#005D9F",
-       "AA": "#0A3456",
-       "BMI": "#4E4F2C",
-       "BMJV": "#C43BBE",
-       "BMF": "#0099C6",
-       "BMWi": "#0C5144",
-       "BMEL": "#427C89",
-       "BMVg": "#C6A70E",
-       "BMFSFJ": "#AAAA11",
-       "BMG": "#2BAA2B",
-       "BMVI": "#27234D",
-       "BMUB": "#14998F",
-       "BMBF": "#004889",
-       "BKM": "#8553A5",
-       "BMZ": "#007EAA",
-       "BPA": "#312783",
-       "BPrA": "#67D805",
-       "BT": "#00676D",
-       "BR": "#0101DF",
-       "BBank": "#FF7F00",
-       "BfDI": "#B77322",
-       "BRH": "#E2E207",
-       'BVerfG': "#E2E207",
-      };
-
-      IFGVis.labels = {
-        "BK": "Kanzleramt",
-        "BMAS": "Arbeitsministerium",
-        "AA": "Auswärtiges Amt",
-        "BMI": "Innenministerium",
-        "BMJV": "Justizministerium",
-        "BMF": "Finanzministerium",
-        "BMWi": "Wirtschaftsministerium",
-        "BMEL": "Verbraucherschutzministerium",
-        "BMVg": "Verteidigungsministerium",
-        "BMFSFJ": "Familienministerium",
-        "BMG": "Gesundheitsministerium",
-        "BMVI": "Verkehrsministerium",
-        "BMUB": "Umweltministerium",
-        "BMBF": "Bildungsministerium",
-        "BKM": "Beauftragter für Kultur und Medien",
-        "BMZ": "Entwicklungsministerium",
-        "BPA": "Bundespresseamt",
-        "BPrA": "Bundespräsidialamt",
-        "BT": "Bundestag",
-        "BR": "Bundesrat",
-        "BBank": "Bundesbank",
-        "BfDI": "Datenschutz- und Informationsfreiheitsbeauftragter",
-        "BRH": "Bundesrechnungshof",
-        'BVerfG': 'Bundesverfassungsgericht'
-      };
-      IFGVis.defaultInstitution = 'BMF';
-      IFGVis.helpDotSize = 10;
-      IFGVis.dotSizeNeedsHelp = 5;
-      IFGVis.maxDotSize = 50;
-    </script>
-    <script id="ifg" src="js/ifg.js" type="text/javascript"></script>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
