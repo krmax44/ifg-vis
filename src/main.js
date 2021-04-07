@@ -53,47 +53,40 @@ svg
 svg.select('.y.axis .major line');
 
 const activateGroup = key => {
-  return () => {
-    const obj = groups[key];
+  const obj = groups[key];
 
-    groups[key].isActive = true;
+  groups[key].isActive = true;
 
-    obj.group.raise();
-    svg.selectAll(`.group[data-group=${key}]`).classed('active', true);
-    obj.group.select('.line').style('display', 'block');
+  obj.group.raise();
+  svg.selectAll(`.group[data-group=${key}]`).classed('active', true);
+  obj.group.select('.line').style('display', 'block');
 
-    activeInForeground();
-  };
+  activeInForeground();
 };
 
 const deactivateGroup = key => {
-  return () => {
-    console.log(key);
-    const obj = groups[key];
+  const obj = groups[key];
 
-    if (activeGroups.has(key)) return;
-    groups[key].isActive = false;
+  if (activeGroups.has(key)) return;
+  groups[key].isActive = false;
 
-    obj.group.select('.line').style('display', 'none');
-    svg
-      .selectAll(`.group[data-group=${key}]`)
-      .style('fill', '')
-      .classed('active', false);
-    obj.group.selectAll('.circle-number').style('display', 'none');
-    refreshAllActiveGroups();
-  };
+  obj.group.select('.line').style('display', 'none');
+  svg
+    .selectAll(`.group[data-group=${key}]`)
+    .style('fill', '')
+    .classed('active', false);
+  obj.group.selectAll('.circle-number').style('display', 'none');
+  refreshAllActiveGroups();
 };
 
 const toggleGroup = key => {
-  return () => {
-    if (activeGroups.has(key)) {
-      activeGroups.delete(key);
-      deactivateGroup(key)();
-    } else {
-      activeGroups.add(key);
-      activateGroup(key)();
-    }
-  };
+  if (activeGroups.has(key)) {
+    activeGroups.delete(key);
+    deactivateGroup(key);
+  } else {
+    activeGroups.add(key);
+    activateGroup(key);
+  }
 };
 
 const activeInForeground = function () {
@@ -109,7 +102,7 @@ const activeInForeground = function () {
 const refreshAllActiveGroups = function () {
   for (const key in groups) {
     if (groups[key].isActive) {
-      activateGroup(key)();
+      activateGroup(key);
     }
   }
   activeInForeground();
@@ -118,7 +111,7 @@ const refreshAllActiveGroups = function () {
 const makeGroup = function (key, groupData) {
   const group = svg
     .append('g')
-    .attr('transform', 'translate(' + innerX.left + ',' + innerY.top + ')')
+    .attr('transform', `translate(${innerX.left}, ${innerY.top})`)
     .attr('class', 'group')
     .attr('data-group', key);
 
@@ -127,30 +120,25 @@ const makeGroup = function (key, groupData) {
       d => x(d.year),
       d => y(d.transparency)
     )
-    .curve(d3.curveCatmullRom, 0.5)
-    .defined(() => true)(groupData);
+    .curve(d3.curveCatmullRom);
 
   group
     .append('svg:path')
     .attr('class', 'line')
     .style('stroke', colors[key])
     .style('display', 'none')
-    .attr('d', connectionLine);
+    .attr('d', connectionLine(groupData));
 
   group
     .data(groupData)
-    .on('click', toggleGroup(key))
-    .on('mouseover', activateGroup(key))
-    .on('mouseout', deactivateGroup(key));
+    .on('click', () => toggleGroup(key))
+    .on('mouseover', () => activateGroup(key))
+    .on('mouseout', () => deactivateGroup(key));
 
   const lastBubble = groupData[groupData.length - 1];
   const labelpos = y(lastBubble.transparency);
 
-  return {
-    labelpos: labelpos,
-    group: group,
-    isActive: true
-  };
+  return { labelpos, group, isActive: false };
 };
 
 const data = csv
@@ -200,16 +188,13 @@ svg
   .attr('transform', 'translate(' + innerX.left + ',' + innerY.top + ')')
   .attr('cx', d => x(d.year))
   .attr('cy', d => y(d.transparency))
-  .on('click', (_e, d) => toggleGroup(d.name)())
-  .on('mouseover', (_e, d) => activateGroup(d.name)())
-  .on('mouseout', (_e, d) => deactivateGroup(d.name)());
+  .on('click', (_e, d) => toggleGroup(d.name))
+  .on('mouseover', (_e, d) => activateGroup(d.name))
+  .on('mouseout', (_e, d) => deactivateGroup(d.name));
 
 for (const key in labels) {
   groups[key] = makeGroup(
     key,
     data.filter(d => d.name === key)
   );
-
-  activateGroup(key)();
-  deactivateGroup(key)();
 }
