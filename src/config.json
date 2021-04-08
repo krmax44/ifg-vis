@@ -1,5 +1,6 @@
 {
   "colors": {
+    "⌀": "#B77322",
     "BK": "#593A68",
     "BMAS": "#005D9F",
     "AA": "#0A3456",
@@ -12,7 +13,7 @@
     "BMFSFJ": "#AAAA11",
     "BMG": "#2BAA2B",
     "BMVI": "#27234D",
-    "BMUB": "#14998F",
+    "BMU": "#14998F",
     "BMBF": "#004889",
     "BKM": "#8553A5",
     "BMZ": "#007EAA",
@@ -26,6 +27,7 @@
     "BVerfG": "#E2E207"
   },
   "labels": {
+    "⌀": "Durchschnitt aller Bundesbehörden",
     "BK": "Kanzleramt",
     "BMAS": "Arbeitsministerium",
     "AA": "Auswärtiges Amt",
@@ -38,7 +40,7 @@
     "BMFSFJ": "Familienministerium",
     "BMG": "Gesundheitsministerium",
     "BMVI": "Verkehrsministerium",
-    "BMUB": "Umweltministerium",
+    "BMU": "Umweltministerium",
     "BMBF": "Bildungsministerium",
     "BKM": "Beauftragter für Kultur und Medien",
     "BMZ": "Entwicklungsministerium",
@@ -51,7 +53,10 @@
     "BRH": "Bundesrechnungshof",
     "BVerfG": "Bundesverfassungsgericht"
   },
-  "defaultInstitution": "BMF",
+  "defaultInstitutions": [
+    "BMF",
+    "BK"
+  ],
   "helpDotSize": 10,
   "dotSizeNeedsHelp": 5,
   "maxDotSize": 50
