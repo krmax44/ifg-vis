@@ -9,6 +9,7 @@
   "devDependencies": {
     "@rollup/plugin-dsv": "^2.0.1",
     "@vitejs/plugin-legacy": "^1.3.2",
+    "postcss-nested": "^5.0.5",
     "prettier": "^2.2.1",
     "vite": "^2.1.5"
   },

@@ -7,7 +7,10 @@ const data = csv
   .map(d => {
     d.year = parseInt(d.year, 10);
     d.count = parseInt(d.count, 10);
+    d.granted = parseInt(d.granted, 10);
+    d.not_granted = parseInt(d.not_granted, 10);
     d.transparency = parseInt(d.transparency, 10);
+    d.filed_requests = parseInt(d.filed_requests, 10);
     return d;
   })
   .filter(d => d.count > 0)
@@ -22,7 +25,6 @@ for (const key in labels) {
     }, {});
 
     groupData[key] = Object.entries(years).map(([year, d]) => {
-      console.log('d', year, d);
       const granted = sumArray(d, 'granted');
       const not_granted = sumArray(d, 'not_granted');
       const count = sumArray(d, 'count');
