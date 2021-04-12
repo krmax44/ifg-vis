@@ -89,10 +89,10 @@ export default function (selector) {
     .append('clipPath')
     .attr('id', 'clip')
     .append('rect')
-    .attr('x', innerX.left)
+    .attr('x', margin.left)
     .attr('y', 0)
     .style('fill-opacity', 0.5)
-    .attr('width', width)
+    .attr('width', width + margin.left)
     .attr('height', innerYHeight + innerY.top);
 
   const svg = rootSvg
@@ -104,11 +104,6 @@ export default function (selector) {
     .attr('width', width)
     .attr('height', height)
     .attr('class', 'pinned')
-    .style('position', 'absolute')
-    .style('left', 0)
-    .style('top', 0)
-    .style('pointer-events', 'none')
-    .style('z-index', '-1')
     .append('g')
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
@@ -159,5 +154,5 @@ export default function (selector) {
       .attr('height', d => yz(d[0]) - yz(d[1]));
   }
 
-  BSN.initCallback(parent.node());
+  window.addEventListener('load', () => BSN.initCallback(parent.node()));
 }

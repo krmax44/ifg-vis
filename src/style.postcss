@@ -1,5 +1,18 @@
+.vis-canvas {
+  position: relative;
+}
+
 .vis-canvas svg {
   pointer-events: all;
+  position: relative;
+
+  &.pinned {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
 
   .axis path,
   .axis .domain {

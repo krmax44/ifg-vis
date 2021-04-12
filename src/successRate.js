@@ -121,7 +121,9 @@ export default function (selector) {
       });
 
     // reload bootstrap tooltips
-    BSN.initCallback(document.querySelector('.vis-success-rate'));
+    window.addEventListener('load', () =>
+      BSN.initCallback(document.querySelector('.vis-success-rate'))
+    );
   }
 
   function makeGroup(key, groupData) {
