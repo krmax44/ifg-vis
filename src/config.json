@@ -53,11 +53,37 @@
     "BRH": "Bundesrechnungshof",
     "BVerfG": "Bundesverfassungsgericht"
   },
+  "requestViews": {
+    "filed_requests": "Eingegangene Anfragen",
+    "filed_requests:via_fds": "Anfragen via FragDenStaat",
+    "granted": "Erfolgreiche Anfragen",
+    "granted:with_fees": "Gebührenpflichtige Anfragen",
+    "filed_objections": "Eingegangene Widersprüche",
+    "filed_lawsuits": "Eingegangene Klagen"
+  },
+  "requestViewUnits": {
+    "filed_requests": [
+      "Anfrage",
+      "Anfragen"
+    ],
+    "filed_objections": [
+      "Widerspruch",
+      "Widersprüche"
+    ],
+    "filed_lawsuits": [
+      "Klage",
+      "Klagen"
+    ],
+    "granted": [
+      "Anfrage",
+      "Anfragen"
+    ]
+  },
   "defaultInstitutions": [
-    "⌀",
-    "BK"
+    "BMF",
+    "AA"
   ],
   "helpDotSize": 10,
   "dotSizeNeedsHelp": 5,
-  "maxDotSize": 50
+  "maxDotSize": 60
 }

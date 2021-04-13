@@ -2,17 +2,18 @@ import * as d3 from 'd3';
 import config from './config.json';
 import { data, groupData } from './data';
 import dimensions from './dimensions';
+import { transitionIn, transitionOut } from './transitionLine';
 
 const { colors, labels } = config;
 
-const groups = {};
-const activeGroups = new Set();
-
-const groupSelectors = d3.select('.selectors');
-const tooltip = d3.select('.vis-tooltip');
-let tooltipTimeout;
-
 export default function (selector) {
+  const root = d3.select(selector);
+
+  const groups = {};
+  const activeGroups = new Set();
+
+  const groupSelectors = root.select('.selectors');
+
   const {
     margin,
     width,
@@ -22,7 +23,7 @@ export default function (selector) {
     innerXWidth,
     innerYHeight,
     translate
-  } = dimensions(selector);
+  } = dimensions(root.node());
 
   const x = d3
     .scaleLinear()
@@ -42,8 +43,13 @@ export default function (selector) {
     .tickPadding(6)
     .tickFormat(d => d.toString());
 
-  const svg = d3
-    .select(selector)
+  const circleRadius = d3
+    .scaleSqrt()
+    .rangeRound([1, config.maxDotSize])
+    .domain(d3.extent(data, d => d.count));
+
+  const svg = root
+    .select('.vis-canvas')
     .append('svg:svg')
     .attr('width', width)
     .attr('height', height)
@@ -72,58 +78,8 @@ export default function (selector) {
       toggleGroup(key);
     }
 
-    // add circles independent from group
-    const circleRadius = d3
-      .scaleSqrt()
-      .rangeRound([1, config.maxDotSize])
-      .domain(d3.extent(data, d => d.count));
-
-    const circleData = [...data].sort((a, b) => b.count - a.count);
-
-    svg
-      .selectAll('.dot')
-      .data(circleData)
-      .enter()
-      .append('circle')
-      .attr('class', 'dot circle')
-      .attr('r', d => circleRadius(d.count))
-      .attr('transform', translate)
-      .attr('cx', d => x(d.year))
-      .attr('cy', d => y(d.transparency))
-      .attr('data-group', d => d.name)
-      .style('opacity', d => (activeGroups.has(d.name) ? '1' : '0'))
-      .on('click', (_e, d) => toggleGroup(d.name))
-      .on('mouseover', (_e, d) => activateGroup(d.name))
-      .on('mouseout', (_e, d) => deactivateGroup(d.name))
-      .on('mouseover', (e, d) => {
-        if (!activeGroups.has(d.name)) return;
-        clearTimeout(tooltipTimeout);
-
-        const node = tooltip.node();
-        const circle = e.target.getBoundingClientRect();
-
-        const left = circle.left + circle.width / 2 - node.offsetWidth / 2;
-        const top = circle.top - node.offsetHeight / 2 - circle.height / 2;
-
-        tooltip
-          .style('opacity', 1)
-          .style('left', `${left}px`)
-          .style('top', `${top}px`)
-          .select('.tooltip-inner')
-          .text(
-            `${d.year} beantwortete das ${labels[d.name]} ${
-              d.transparency
-            } % von ${d.count} Anfragen`
-          );
-      })
-      .on('mouseout', () => {
-        tooltipTimeout = setTimeout(() => tooltip.style('opacity', 0), 200);
-      });
-
     // reload bootstrap tooltips
-    window.addEventListener('load', () =>
-      BSN.initCallback(document.querySelector('.vis-success-rate'))
-    );
+    window.addEventListener('load', () => BSN.initCallback(root.node()));
   }
 
   function makeGroup(key, groupData) {
@@ -140,18 +96,12 @@ export default function (selector) {
       )
       .curve(d3.curveCatmullRom);
 
-    group
+    const line = group
       .append('svg:path')
       .attr('class', 'line')
       .style('stroke', colors[key])
-      .style('display', 'none')
+      .classed('hidden', true)
       .attr('d', connectionLine(groupData));
-
-    group
-      .data(groupData)
-      .on('click', () => toggleGroup(key))
-      .on('mouseover', () => activateGroup(key))
-      .on('mouseout', () => deactivateGroup(key));
 
     const selector = groupSelectors
       .append('span')
@@ -166,70 +116,60 @@ export default function (selector) {
       .attr('data-toggle', 'tooltip')
       .on('click', () => toggleGroup(key));
 
-    return { group, selector };
+    return { group, selector, groupData, line };
   }
 
   function activateGroup(key) {
     const obj = groups[key];
 
-    if (activeGroups.has(key)) {
-      obj.selector.classed('badge-dark', true);
+    obj.selector.classed('badge-dark', true);
+    obj.line.classed('hidden', false);
+
+    if (!obj.circles) {
+      obj.circles = obj.group.append('g').attr('class', 'circles hidden');
+
+      obj.circles
+        .selectAll('circle.dot')
+        .data(obj.groupData)
+        .join('circle')
+        .attr('class', 'dot circle')
+        .attr('r', d => circleRadius(d.count))
+        .attr('cx', d => x(d.year))
+        .attr('cy', d => y(d.transparency))
+        .attr('data-group', key)
+        .attr(
+          'title',
+          d =>
+            `${labels[d.name]} beantwortete ${d.year} ${d.transparency} % von ${
+              d.count
+            } Anfragen`
+        )
+        .attr('data-toggle', 'tooltip');
+
+      BSN.initCallback(root.node());
     }
-
-    obj.group.raise();
-    obj.group.select('.line').style('display', 'block');
-
-    svg.selectAll(`.dot[data-group=${key}]`).style('opacity', '1');
-
-    activeInForeground();
+    console.log(obj.circles);
+    window.requestAnimationFrame(() => obj.circles.classed('hidden', false));
   }
 
-  function deactivateGroup(key, hide = true) {
+  function deactivateGroup(key) {
     const obj = groups[key];
 
-    if (activeGroups.has(key)) return;
-
     obj.selector.classed('badge-dark', false);
-    svg.selectAll(`.dot[data-group=${key}]`).style('opacity', '0');
-
-    if (hide) obj.group.select('.line').style('display', 'none');
-    obj.group.selectAll('.circle-number').style('display', 'none');
+    obj.circles.classed('hidden', true);
+    transitionOut(obj.line).on('end', () => obj.line.classed('hidden', true));
   }
 
   function toggleGroup(key) {
-    const transition = groups[key].group
-      .select('.line')
-      .attr('stroke-dashoffset', 0)
-      .transition()
-      .duration(300)
-      .ease(d3.easeCubicInOut);
+    const line = groups[key].group.select('.line');
 
     if (activeGroups.has(key)) {
       activeGroups.delete(key);
       deactivateGroup(key, false);
-
-      transition.attrTween('stroke-dashoffset', function () {
-        const length = this.getTotalLength();
-        return d3.interpolate(0, length);
-      });
     } else {
       activeGroups.add(key);
       activateGroup(key);
-
-      transition.attrTween('stroke-dasharray', function () {
-        const length = this.getTotalLength();
-        return d3.interpolate(`0,${length}`, `${length},${length}`);
-      });
+      transitionIn(line);
     }
-  }
-
-  function activeInForeground() {
-    for (const key in groups) {
-      if (activeGroups.has(key)) {
-        groups[key].group.raise();
-      }
-    }
-
-    svg.selectAll('.label').raise();
   }
 }

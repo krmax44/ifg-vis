@@ -17,6 +17,11 @@ const config = {
         chunkFileNames: '[name].js'
       }
     }
+  },
+  resolve: {
+    alias: {
+      '~': './node_modules/'
+    }
   }
 };
 

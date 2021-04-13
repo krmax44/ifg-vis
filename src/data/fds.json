@@ -1,0 +1,52 @@
+[
+  {
+    "year": 2011,
+    "count": 252,
+    "successful": 82
+  },
+  {
+    "year": 2012,
+    "count": 376,
+    "successful": 170
+  },
+  {
+    "year": 2013,
+    "count": 1052,
+    "successful": 403
+  },
+  {
+    "year": 2014,
+    "count": 1378,
+    "successful": 427
+  },
+  {
+    "year": 2015,
+    "count": 2190,
+    "successful": 668
+  },
+  {
+    "year": 2016,
+    "count": 4720,
+    "successful": 3113
+  },
+  {
+    "year": 2017,
+    "count": 3618,
+    "successful": 1480
+  },
+  {
+    "year": 2018,
+    "count": 3039,
+    "successful": 1302
+  },
+  {
+    "year": 2019,
+    "count": 43244,
+    "successful": 6227
+  },
+  {
+    "year": 2020,
+    "count": 16289,
+    "successful": 4335
+  }
+]

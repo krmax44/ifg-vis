@@ -2,17 +2,16 @@ import csv from './data/data.csv';
 import { labels } from './config.json';
 import { sumArray } from './utils';
 
+export const intObj = obj =>
+  Object.fromEntries(
+    Object.entries(obj).map(d =>
+      d[0] !== 'name' ? [d[0], parseInt(d[1], 10)] : d
+    )
+  );
+
 const groupData = {};
 const data = csv
-  .map(d => {
-    d.year = parseInt(d.year, 10);
-    d.count = parseInt(d.count, 10);
-    d.granted = parseInt(d.granted, 10);
-    d.not_granted = parseInt(d.not_granted, 10);
-    d.transparency = parseInt(d.transparency, 10);
-    d.filed_requests = parseInt(d.filed_requests, 10);
-    return d;
-  })
+  .map(intObj)
   .filter(d => d.count > 0)
   .sort((a, b) => a.year - b.year);
 
