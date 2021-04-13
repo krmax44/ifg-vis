@@ -2,8 +2,13 @@ import * as d3 from 'd3';
 import { data } from './data';
 import dimensions from './dimensions';
 import { colors, labels, requestViews, requestViewUnits } from './config.json';
-import fdsShare from './data/fds.json';
+import fdsShare from './data/fds.csv';
 import { transitionIn, transitionOut } from './transitionLine';
+
+const hasTouch =
+  'ontouchstart' in window ||
+  navigator.maxTouchPoints > 0 ||
+  navigator.msMaxTouchPoints > 0;
 
 const getData = key => {
   const groupsByYear = data.reduce((obj, d) => {
@@ -138,9 +143,22 @@ export default function (selector) {
 
   const zoom = d3
     .zoom()
-    .scaleExtent([1, 32])
+    .scaleExtent([1, 64])
     .extent(extent)
     .translateExtent(extent)
+    .filter(event => {
+      if (event.type === 'wheel' && event.ctrlKey) {
+        // prevent browser zoom
+        event.preventDefault();
+      }
+
+      if (!hasTouch && event.type === 'wheel' && !event.ctrlKey) {
+        // only zoom with ctrl
+        return false;
+      }
+
+      return true;
+    })
     .on('zoom', zoomed);
 
   const gx = svg
@@ -260,7 +278,6 @@ export default function (selector) {
 
   function setChartView(to) {
     const view = to.split(':');
-    console.log(view);
     chartView = view[0];
     subChartView = subChartView === view[1] ? undefined : view[1];
 
@@ -273,6 +290,7 @@ export default function (selector) {
       .call(yAxis, yz)
       .on('end', () => {
         updateZoom = false;
+        svg.call(zoom);
         svg.call(zoom.scaleTo, 1);
       });
 

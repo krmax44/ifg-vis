@@ -8,6 +8,7 @@ const { colors, labels } = config;
 
 export default function (selector) {
   const root = d3.select(selector);
+  const parent = root.select('.vis-canvas');
 
   const groups = {};
   const activeGroups = new Set();
@@ -31,11 +32,17 @@ export default function (selector) {
     .domain(d3.extent(data, d => d.year));
   const y = d3.scaleLinear().domain([0, 100]).range([innerYHeight, 0]);
 
-  const yAxis = d3
-    .axisLeft(y)
-    .tickSize(-width, 0, 0)
-    .ticks(5)
-    .tickFormat(d => `${d} %`);
+  const yAxis = (g, y) =>
+    g
+      .attr('class', 'y axis')
+      .attr('transform', `translate(${innerY.left}, ${innerY.top})`)
+      .call(
+        d3
+          .axisLeft(y)
+          .tickSize(-width, 0, 0)
+          .ticks(5)
+          .tickFormat(d => `${d} %`)
+      );
 
   const xAxis = d3
     .axisBottom(x)
@@ -48,19 +55,32 @@ export default function (selector) {
     .rangeRound([1, config.maxDotSize])
     .domain(d3.extent(data, d => d.count));
 
-  const svg = root
-    .select('.vis-canvas')
-    .append('svg:svg')
+  const body = parent.append('div').attr('class', 'y-container');
+
+  const pinnedSvg = parent
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('class', 'pinned')
+    .append('g')
+    .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+  pinnedSvg
+    .append('g')
+    .append('rect')
+    .attr('fill', '#fff')
+    .attr('x', margin.left)
+    .attr('y', margin.top)
+    .attr('width', innerXWidth)
+    .attr('height', innerYHeight);
+  pinnedSvg.append('g').call(yAxis, y);
+
+  const svg = body
+    .append('svg')
     .attr('width', width)
     .attr('height', height)
     .append('g')
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
-
-  svg
-    .append('g')
-    .attr('class', 'y axis')
-    .attr('transform', `translate(${innerY.left}, ${innerY.top})`)
-    .call(yAxis);
 
   svg
     .append('g')
@@ -148,7 +168,7 @@ export default function (selector) {
 
       BSN.initCallback(root.node());
     }
-    console.log(obj.circles);
+
     window.requestAnimationFrame(() => obj.circles.classed('hidden', false));
   }
 
