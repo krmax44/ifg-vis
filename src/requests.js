@@ -67,7 +67,6 @@ export default function (selector) {
   } = dimensions(parent.node());
 
   let { highestValue, dataset } = getData(chartView);
-  const feeData = getData('fees_charged').dataset;
 
   const hasGroup = key => requestViewKeys.find(k => k.startsWith(`${key}:`));
 

@@ -5,7 +5,8 @@ const totalLength = el => el.node().getTotalLength();
 export const cleanTransition = el =>
   el.attr('stroke-dashoffset', null).attr('stroke-dasharray', null);
 
-const makeTransition = el => el.transition().duration(400).ease(easeCubicInOut);
+export const makeTransition = el =>
+  el.transition().duration(400).ease(easeCubicInOut);
 
 export const transitionIn = el => {
   el.classed('hidden', false);

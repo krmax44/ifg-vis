@@ -8,7 +8,7 @@ import {
 } from './config.json';
 import { data, groupData } from './data';
 import dimensions from './dimensions';
-import { transitionIn, transitionOut } from './transitionLine';
+import { transitionIn, transitionOut, makeTransition } from './transitionLine';
 
 export default function (selector) {
   const root = d3.select(selector);
@@ -18,8 +18,15 @@ export default function (selector) {
   const activeGroups = new Set();
 
   let category = rateViews[0];
+  const getPercentage = d =>
+    Math.round((d[category.divident] / d[category.divisor]) * 100);
+  const getAbsolute = d => d[category.divisor];
 
-  const categorySelector = root.select('select').on();
+  const categorySelector = root.select('select').on('input', () => {
+    const categoryIndex = parseInt(categorySelector.node().value, 10);
+    category = rateViews[categoryIndex];
+    updateGroups();
+  });
   const groupSelectors = root.select('.selectors');
 
   const {
@@ -113,22 +120,13 @@ export default function (selector) {
     const group = svg
       .append('g')
       .attr('transform', translate)
-      .attr('class', 'group')
-      .attr('data-group', key);
-
-    const connectionLine = d3
-      .line(
-        d => x(d.year),
-        d => y((d.granted / d.count) * 100)
-      )
-      .curve(d3.curveCatmullRom);
+      .attr('class', 'group');
 
     const line = group
-      .append('svg:path')
+      .append('path')
       .attr('class', 'line')
       .style('stroke', colors[key])
-      .classed('hidden', true)
-      .attr('d', connectionLine(groupData));
+      .classed('hidden', true);
 
     const selector = groupSelectors
       .append('span')
@@ -158,20 +156,14 @@ export default function (selector) {
         .selectAll('circle.dot')
         .data(obj.groupData)
         .join('circle')
-        .attr('class', 'dot circle')
-        .attr('r', d => circleRadius(d.count))
-        .attr('cx', d => x(d.year))
-        .attr('cy', d => y(d.transparency))
-        .attr('data-group', key)
-        .attr(
-          'title',
-          d => `${labels[d.name]}: ${d.transparency} % von ${d.count} Anfragen`
-        )
-        .attr('data-toggle', 'tooltip');
+        .attr('class', 'dot circle');
+
+      updateCircles(obj, false);
 
       BSN.initCallback(root.node());
     }
 
+    updateLine(obj, false);
     transitionIn(obj.line);
     window.requestAnimationFrame(() => obj.circles.classed('hidden', false));
   }
@@ -185,14 +177,57 @@ export default function (selector) {
   }
 
   function toggleGroup(key) {
-    const line = groups[key].group.select('.line');
-
     if (activeGroups.has(key)) {
       activeGroups.delete(key);
       deactivateGroup(key, false);
     } else {
       activeGroups.add(key);
       activateGroup(key);
+
+      if (activeGroups.size >= 3) {
+        const first = activeGroups.values().next().value;
+        activeGroups.delete(first);
+        deactivateGroup(first, false);
+      }
+    }
+  }
+
+  function updateCircles(obj, transition = true) {
+    let circles = obj.circles.selectAll('circle').data(obj.groupData);
+
+    if (transition) circles = makeTransition(circles);
+
+    circles
+      .attr('cx', d => x(d.year))
+      .attr('r', d => circleRadius(d.count))
+      .attr('cy', d => y(getPercentage(d)))
+      .attr(
+        'title',
+        d =>
+          `${labels[d.name]}: ${getPercentage(d)} % von ${getAbsolute(
+            d
+          )} Anfragen`
+      )
+      .attr('data-toggle', 'tooltip');
+  }
+
+  function updateLine(obj, transition = true) {
+    const connectionLine = d3
+      .line(
+        d => x(d.year),
+        d => y(getPercentage(d))
+      )
+      .curve(d3.curveCatmullRom);
+
+    const line = transition ? makeTransition(obj.line) : obj.line;
+    line.attr('d', connectionLine(obj.groupData));
+  }
+
+  function updateGroups() {
+    for (const key of activeGroups) {
+      const group = groups[key];
+      updateCircles(group);
+      updateLine(group);
     }
   }
 }

@@ -28,6 +28,7 @@ for (const key in labels) {
       const not_granted = sumArray(d, 'not_granted');
       const count = sumArray(d, 'count');
       const filed_requests = sumArray(d, 'filed_requests');
+      const fees_charged = sumArray(d, 'fees_charged');
       const sum = granted + not_granted;
       const transparency = Math.round((granted / sum) * 100);
 
@@ -38,6 +39,7 @@ for (const key in labels) {
         not_granted,
         count,
         transparency,
+        fees_charged,
         filed_requests
       };
     });
