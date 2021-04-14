@@ -5,7 +5,10 @@ import legacy from '@vitejs/plugin-legacy';
  * @type {import('vite').UserConfig}
  */
 const config = {
-  plugins: [dsv(), legacy({ targets: ['defaults', 'not IE 11'] })],
+  plugins: [
+    dsv(),
+    legacy({ targets: ['defaults', 'not IE 11'], polyfills: false })
+  ],
   build: {
     rollupOptions: {
       output: {

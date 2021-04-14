@@ -56,8 +56,6 @@
   "requestViews": {
     "filed_requests": "Eingegangene Anfragen",
     "filed_requests:via_fds": "Anfragen via FragDenStaat",
-    "granted": "Erfolgreiche Anfragen",
-    "granted:with_fees": "Gebührenpflichtige Anfragen",
     "filed_objections": "Eingegangene Widersprüche",
     "filed_lawsuits": "Eingegangene Klagen"
   },
@@ -73,17 +71,23 @@
     "filed_lawsuits": [
       "Klage",
       "Klagen"
-    ],
-    "granted": [
-      "Anfrage",
-      "Anfragen"
     ]
   },
+  "rateViews": [
+    {
+      "name": "Anteil erfolgreicher Anfragen",
+      "divident": "granted",
+      "divisor": "count"
+    },
+    {
+      "name": "Anteil gebührenpflichtiger Anfragen",
+      "divident": "fees_charged",
+      "divisor": "count"
+    }
+  ],
   "defaultInstitutions": [
     "BMF",
     "AA"
   ],
-  "helpDotSize": 10,
-  "dotSizeNeedsHelp": 5,
   "maxDotSize": 60
 }

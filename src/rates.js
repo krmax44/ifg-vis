@@ -1,10 +1,14 @@
 import * as d3 from 'd3';
-import config from './config.json';
+import {
+  colors,
+  labels,
+  defaultInstitutions,
+  maxDotSize,
+  rateViews
+} from './config.json';
 import { data, groupData } from './data';
 import dimensions from './dimensions';
 import { transitionIn, transitionOut } from './transitionLine';
-
-const { colors, labels } = config;
 
 export default function (selector) {
   const root = d3.select(selector);
@@ -13,6 +17,9 @@ export default function (selector) {
   const groups = {};
   const activeGroups = new Set();
 
+  let category = rateViews[0];
+
+  const categorySelector = root.select('select').on();
   const groupSelectors = root.select('.selectors');
 
   const {
@@ -52,7 +59,7 @@ export default function (selector) {
 
   const circleRadius = d3
     .scaleSqrt()
-    .rangeRound([1, config.maxDotSize])
+    .rangeRound([1, maxDotSize])
     .domain(d3.extent(data, d => d.count));
 
   const body = parent.append('div').attr('class', 'y-container');
@@ -94,7 +101,7 @@ export default function (selector) {
   for (const [key, group] of Object.entries(groupData)) {
     groups[key] = makeGroup(key, group);
 
-    if (config.defaultInstitutions.includes(key)) {
+    if (defaultInstitutions.includes(key)) {
       toggleGroup(key);
     }
 
@@ -112,7 +119,7 @@ export default function (selector) {
     const connectionLine = d3
       .line(
         d => x(d.year),
-        d => y(d.transparency)
+        d => y((d.granted / d.count) * 100)
       )
       .curve(d3.curveCatmullRom);
 
@@ -143,7 +150,6 @@ export default function (selector) {
     const obj = groups[key];
 
     obj.selector.classed('badge-dark', true);
-    obj.line.classed('hidden', false);
 
     if (!obj.circles) {
       obj.circles = obj.group.append('g').attr('class', 'circles hidden');
@@ -159,16 +165,14 @@ export default function (selector) {
         .attr('data-group', key)
         .attr(
           'title',
-          d =>
-            `${labels[d.name]} beantwortete ${d.year} ${d.transparency} % von ${
-              d.count
-            } Anfragen`
+          d => `${labels[d.name]}: ${d.transparency} % von ${d.count} Anfragen`
         )
         .attr('data-toggle', 'tooltip');
 
       BSN.initCallback(root.node());
     }
 
+    transitionIn(obj.line);
     window.requestAnimationFrame(() => obj.circles.classed('hidden', false));
   }
 
@@ -177,7 +181,7 @@ export default function (selector) {
 
     obj.selector.classed('badge-dark', false);
     obj.circles.classed('hidden', true);
-    transitionOut(obj.line).on('end', () => obj.line.classed('hidden', true));
+    transitionOut(obj.line).on('end');
   }
 
   function toggleGroup(key) {
@@ -189,7 +193,6 @@ export default function (selector) {
     } else {
       activeGroups.add(key);
       activateGroup(key);
-      transitionIn(line);
     }
   }
 }

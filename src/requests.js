@@ -1,14 +1,22 @@
 import * as d3 from 'd3';
-import { data } from './data';
+import { data, intObj } from './data';
 import dimensions from './dimensions';
 import { colors, labels, requestViews, requestViewUnits } from './config.json';
 import fdsShare from './data/fds.csv';
-import { transitionIn, transitionOut } from './transitionLine';
+import { cleanTransition, transitionIn, transitionOut } from './transitionLine';
 
 const hasTouch =
   'ontouchstart' in window ||
   navigator.maxTouchPoints > 0 ||
   navigator.msMaxTouchPoints > 0;
+
+const requestViewKeys = Object.keys(requestViews);
+let chartView = requestViewKeys[0];
+let subChartView;
+
+let filterBfr = false;
+const shouldFilterBfr = d => filterBfr && d.name === 'BMEL' && d.year === 2019;
+const BFR_REQUESTS = 45245;
 
 const getData = key => {
   const groupsByYear = data.reduce((obj, d) => {
@@ -16,6 +24,10 @@ const getData = key => {
 
     obj[d.year][d.name] = d[key] || 0;
     obj[d.year].year = d.year;
+
+    if (key === 'filed_requests' && shouldFilterBfr(d)) {
+      obj[d.year][d.name] -= BFR_REQUESTS;
+    }
 
     return obj;
   }, {});
@@ -38,9 +50,6 @@ const getData = key => {
 };
 
 export default function (selector) {
-  const requestViewKeys = Object.keys(requestViews);
-  let chartView = requestViewKeys[0];
-  let subChartView;
   let updateZoom = true;
 
   const root = d3.select(selector);
@@ -57,7 +66,7 @@ export default function (selector) {
     translate
   } = dimensions(parent.node());
 
-  const { highestValue, dataset } = getData(chartView);
+  let { highestValue, dataset } = getData(chartView);
   const feeData = getData('fees_charged').dataset;
 
   const hasGroup = key => requestViewKeys.find(k => k.startsWith(`${key}:`));
@@ -80,6 +89,12 @@ export default function (selector) {
       'badge-dark',
       d => chartView === d[0] || `${chartView}:${subChartView}` === d[0]
     );
+
+  root.select('#bfr').on('input', e => {
+    filterBfr = e.target.checked;
+    update(y, true);
+    updateYAxis(y);
+  });
 
   const body = parent.append('div').attr('class', 'y-container');
 
@@ -116,6 +131,12 @@ export default function (selector) {
     .range([0, innerXWidth])
     .domain(d3.extent(data, d => d.year));
 
+  const xAxis = d3
+    .axisBottom(x)
+    .tickSize(-height + innerY.bottom, 0, 0)
+    .tickPadding(6)
+    .tickFormat(d => d.toString());
+
   const y = d3.scaleLinear().domain([0, highestValue]).range([innerYHeight, 0]);
 
   const yAxis = (g, y) =>
@@ -130,17 +151,10 @@ export default function (selector) {
           .tickFormat(d => Intl.NumberFormat('de-DE').format(d))
       );
 
-  const xAxis = d3
-    .axisBottom(x)
-    .tickSize(-height + innerY.bottom, 0, 0)
-    .tickPadding(6)
-    .tickFormat(d => d.toString());
-
   const extent = [
     [innerX.left, 0],
     [width, innerYHeight]
   ];
-
   const zoom = d3
     .zoom()
     .scaleExtent([1, 64])
@@ -174,50 +188,35 @@ export default function (selector) {
 
   const clipped = svg.append('g').attr('clip-path', 'url(#clip)');
 
-  const makeBars = (dataset, classes) =>
-    clipped
-      .append('g')
-      .selectAll('g')
-      .data(dataset)
-      .join('g')
-      .style('fill', d => colors[d.key])
-      .attr('class', 'bar ' + classes)
+  const bars = clipped
+    .append('g')
+    .selectAll('g')
+    .data(dataset)
+    .join('g')
+    .style('fill', d => colors[d.key])
+    .attr('class', 'bar')
 
-      .selectAll('rect')
-      .data(d => d)
-      .join('rect')
-      .attr('width', 20)
-      .attr('data-toggle', 'tooltip')
-      .attr('data-trigger', 'click focus hover')
-      .attr('class', classes);
+    .selectAll('rect')
+    .data(d => d)
+    .join('rect')
+    .attr('width', 20)
+    .attr('data-toggle', 'tooltip')
+    .attr('data-trigger', 'click focus hover')
+    .attr('class', 'fraction');
 
-  const bars = makeBars(dataset, 'fraction');
-  const feeBars = makeBars(feeData, 'fees');
-
-  const updateBars = (
-    y,
-    dataset,
-    transition = true,
-    selector = '.fraction'
-  ) => {
-    const isFeeBar = selector !== '.fraction';
-    const isFeeView = subChartView === 'with_fees';
-
+  const updateBars = (y, dataset, transition = true) => {
     let rects = clipped
-      .selectAll('g.bar' + selector)
+      .selectAll('g.bar')
       .data(dataset)
-      .selectAll('rect' + selector)
-      .data(d => d)
-      .classed('hidden', isFeeBar && !isFeeView);
+      .selectAll('rect')
+      .data(d => d);
 
     if (transition) {
       rects = rects.transition().duration(500);
     }
 
-    const xOffset = isFeeView ? (isFeeBar ? 5 : -25) : -10;
-
     rects
-      .attr('x', d => x(d.data.year) + innerX.left + xOffset)
+      .attr('x', d => x(d.data.year) + innerX.left - 10)
       .attr('y', d => y(d[1]) + innerY.top)
       .attr('height', d => y(d[0]) - y(d[1]))
       .attr(
@@ -232,37 +231,67 @@ export default function (selector) {
   const line = clipped
     .append('path')
     .attr('transform', translate)
-    .attr('class', 'line')
+    .attr('class', 'line hidden')
     .style('stroke', '#0034a5');
 
-  const drawLine = (y, transition = true) => {
+  const updateLine = (y, transition = true) => {
     const show = chartView === 'filed_requests' && subChartView === 'via_fds';
 
     if (show) {
+      const yVal = ({ count, year }) => {
+        const noBfr = shouldFilterBfr(intObj({ count, year, name: 'BMEL' }));
+        const val = noBfr ? count - BFR_REQUESTS : count;
+        return y(val);
+      };
+
+      cleanTransition(line);
+
       line
+        .raise()
+        .transition()
+        .duration(500)
         .attr(
           'd',
           d3
             .line(
               d => x(d.year),
-              d => y(d.count)
+              d => yVal(d)
             )
             .curve(d3.curveCatmullRom)(fdsShare)
-        )
-        .raise();
+        );
 
-      if (transition) transitionIn(line);
-    } else if (line.attr('stroke-dashoffset') === '0') {
+      if (transition && line.classed('hidden')) transitionIn(line);
+    } else if (transitionIn && !line.classed('hidden')) {
       transitionOut(line);
     }
   };
 
+  const update = (y, transition) => {
+    const data = getData(chartView);
+    dataset = data.dataset;
+    highestValue = data.highestValue;
+
+    const yz = y.domain([0, highestValue]);
+
+    updateLine(yz, transition);
+    updateBars(yz, dataset, transition);
+    updateSelectors();
+  };
+
+  const updateYAxis = y => {
+    gy.transition()
+      .duration(500)
+      .call(yAxis, y)
+      .on('end', () => {
+        updateZoom = false;
+        svg.call(zoom);
+        svg.call(zoom.scaleTo, 1);
+      });
+  };
+
   // call everything
+  update(y, false);
   svg.call(zoom);
-  drawLine(y);
-  updateBars(y, dataset, false, '.fraction');
-  updateBars(y, feeData, false, '.fees');
-  updateSelectors();
   body.node().scrollBy(0, 0);
 
   function zoomed(event) {
@@ -270,9 +299,7 @@ export default function (selector) {
     gy.call(yAxis, yz);
 
     if (updateZoom) {
-      updateBars(yz, dataset, false, '.fraction');
-      updateBars(yz, feeData, false, '.fees');
-      drawLine(yz, false);
+      update(yz, false);
     }
     updateZoom = true;
   }
@@ -282,23 +309,9 @@ export default function (selector) {
     chartView = view[0];
     subChartView = subChartView === view[1] ? undefined : view[1];
 
-    const { dataset, highestValue } = getData(chartView);
-
     const yz = y.domain([0, highestValue]);
-
-    gy.transition()
-      .duration(500)
-      .call(yAxis, yz)
-      .on('end', () => {
-        updateZoom = false;
-        svg.call(zoom);
-        svg.call(zoom.scaleTo, 1);
-      });
-
-    updateBars(yz, dataset, true, '.fraction');
-    updateBars(y, feeData, true, '.fees');
-    updateSelectors();
-    drawLine(y);
+    update(yz, true);
+    updateYAxis(yz);
   }
 
   window.addEventListener('load', () => BSN.initCallback(parent.node()));

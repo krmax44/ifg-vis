@@ -1,6 +1,6 @@
 import './style.postcss';
-import successRate from './successRate';
+import rates from './rates';
 import requests from './requests';
 
-successRate('.vis-success-rate');
+rates('.vis-rates');
 requests('.vis-requests');

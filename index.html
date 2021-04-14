@@ -13,12 +13,34 @@
   <body>
     <div id="app" class="container-fluid">
       <div class="vis-requests">
-        <div class="selectors"></div>
+        <div class="row">
+          <div class="selectors col-md-8"></div>
+          <div class="col-md-4 small">
+            <label class="d-flex justify-content-md-end mt-1 mb-0">
+              <input type="checkbox" class="mr-1" id="bfr" />
+              ohne #Zensurheberrecht-Anfragen
+            </label>
+          </div>
+        </div>
         <div class="vis-canvas"></div>
       </div>
 
-      <div class="vis-success-rate">
-        <div class="selectors"></div>
+      <div class="vis-rates">
+        <div class="d-flex">
+          <div class="selectors"></div>
+          <div class="small">
+            <div class="d-flex justify-content-md-end">
+              <select>
+                <option value="successful">
+                  Anteil erfolgreicher Anfragen
+                </option>
+                <option value="fees">
+                  Anteil gebührenpflichtiger Anfragen
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="vis-canvas"></div>
       </div>
     </div>
