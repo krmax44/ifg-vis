@@ -235,7 +235,7 @@ export default function (selector) {
     .attr('class', 'line')
     .style('stroke', '#0034a5');
 
-  const drawLine = y => {
+  const drawLine = (y, transition = true) => {
     const show = chartView === 'filed_requests' && subChartView === 'via_fds';
 
     if (show) {
@@ -250,7 +250,8 @@ export default function (selector) {
             .curve(d3.curveCatmullRom)(fdsShare)
         )
         .raise();
-      transitionIn(line);
+
+      if (transition) transitionIn(line);
     } else if (line.attr('stroke-dashoffset') === '0') {
       transitionOut(line);
     }
@@ -271,7 +272,7 @@ export default function (selector) {
     if (updateZoom) {
       updateBars(yz, dataset, false, '.fraction');
       updateBars(yz, feeData, false, '.fees');
-      drawLine(yz);
+      drawLine(yz, false);
     }
     updateZoom = true;
   }
