@@ -89,10 +89,23 @@ export default function (selector) {
     .attr('height', innerYHeight);
   pinnedSvg.append('g').call(yAxis, y);
 
-  const svg = body
+  const rootSvg = body
     .append('svg')
     .attr('width', width)
-    .attr('height', height)
+    .attr('height', height);
+
+  rootSvg
+    .append('defs')
+    .append('clipPath')
+    .attr('id', 'clip')
+    .append('rect')
+    .attr('x', margin.left)
+    .attr('y', 0)
+    .style('fill-opacity', 0.5)
+    .attr('width', width + margin.left)
+    .attr('height', innerYHeight + innerY.top);
+
+  const svg = rootSvg
     .append('g')
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
@@ -104,6 +117,8 @@ export default function (selector) {
       `translate(${innerX.left}, ${innerYHeight + margin.top + margin.bottom})`
     )
     .call(xAxis);
+
+  const clipped = svg.append('g').attr('clip-path', 'url(#clip)');
 
   for (const [key, group] of Object.entries(groupData)) {
     groups[key] = makeGroup(key, group);
@@ -117,7 +132,7 @@ export default function (selector) {
   }
 
   function makeGroup(key, groupData) {
-    const group = svg
+    const group = clipped
       .append('g')
       .attr('transform', translate)
       .attr('class', 'group');
