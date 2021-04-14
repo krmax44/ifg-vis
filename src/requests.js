@@ -233,7 +233,7 @@ export default function (selector) {
     .append('path')
     .attr('transform', translate)
     .attr('class', 'line')
-    .style('stroke', '#ccc');
+    .style('stroke', '#0034a5');
 
   const drawLine = y => {
     const show = chartView === 'filed_requests' && subChartView === 'via_fds';
@@ -249,7 +249,7 @@ export default function (selector) {
             )
             .curve(d3.curveCatmullRom)(fdsShare)
         )
-        .lower();
+        .raise();
       transitionIn(line);
     } else if (line.attr('stroke-dashoffset') === '0') {
       transitionOut(line);
