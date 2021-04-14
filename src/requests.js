@@ -91,7 +91,7 @@ export default function (selector) {
 
   root.select('#bfr').on('input', e => {
     filterBfr = e.target.checked;
-    update(y, true);
+    update(true);
     updateYAxis(y);
   });
 
@@ -136,7 +136,7 @@ export default function (selector) {
     .tickPadding(6)
     .tickFormat(d => d.toString());
 
-  const y = d3.scaleLinear().domain([0, highestValue]).range([innerYHeight, 0]);
+  let y = d3.scaleLinear().domain([0, highestValue]).range([innerYHeight, 0]);
 
   const yAxis = (g, y) =>
     g
@@ -265,12 +265,15 @@ export default function (selector) {
     }
   };
 
-  const update = (y, transition) => {
+  const update = (transition, yz) => {
     const data = getData(chartView);
     dataset = data.dataset;
     highestValue = data.highestValue;
 
-    const yz = y.domain([0, highestValue]);
+    if (!yz) {
+      y = y.domain([0, highestValue]);
+      yz = y;
+    }
 
     updateLine(yz, transition);
     updateBars(yz, dataset, transition);
@@ -289,7 +292,7 @@ export default function (selector) {
   };
 
   // call everything
-  update(y, false);
+  update(false);
   svg.call(zoom);
   body.node().scrollBy(0, 0);
 
@@ -298,7 +301,7 @@ export default function (selector) {
     gy.call(yAxis, yz);
 
     if (updateZoom) {
-      update(yz, false);
+      update(false, yz);
     }
     updateZoom = true;
   }
@@ -308,9 +311,8 @@ export default function (selector) {
     chartView = view[0];
     subChartView = subChartView === view[1] ? undefined : view[1];
 
-    const yz = y.domain([0, highestValue]);
-    update(yz, true);
-    updateYAxis(yz);
+    update(true);
+    updateYAxis(y);
   }
 
   window.addEventListener('load', () => BSN.initCallback(parent.node()));
