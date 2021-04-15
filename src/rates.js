@@ -32,6 +32,14 @@ export default function (selector) {
     category = rateViews[categoryIndex];
     updateGroups();
   });
+
+  categorySelector
+    .selectAll('option')
+    .data(rateViews)
+    .join('option')
+    .text(d => d.name)
+    .attr('value', (_d, i) => i);
+
   const groupSelectors = root.select('.selectors');
 
   const {
