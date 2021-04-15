@@ -245,21 +245,24 @@ export default function (selector) {
 
       cleanTransition(line);
 
-      line
-        .raise()
-        .transition()
-        .duration(500)
-        .attr(
-          'd',
-          d3
-            .line(
-              d => x(d.year),
-              d => yVal(d)
-            )
-            .curve(d3.curveCatmullRom)(fdsShare)
-        );
+      const shouldTransIn = transition && line.classed('hidden');
+      let l = line.raise();
 
-      if (transition && line.classed('hidden')) transitionIn(line);
+      if (shouldTransIn) {
+        transitionIn(line);
+      } else {
+        l = line.transition().duration(500);
+      }
+
+      l.attr(
+        'd',
+        d3
+          .line(
+            d => x(d.year),
+            d => yVal(d)
+          )
+          .curve(d3.curveCatmullRom)(fdsShare)
+      );
     } else if (transitionIn && !line.classed('hidden')) {
       transitionOut(line);
     }
