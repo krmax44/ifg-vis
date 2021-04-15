@@ -186,11 +186,10 @@ export default function (selector) {
         .join('circle')
         .attr('class', 'dot circle');
 
-      updateCircles(obj, false);
-
       BSN.initCallback(root.node());
     }
 
+    updateCircles(obj, false);
     updateLine(obj, false);
     transitionIn(obj.line);
     window.requestAnimationFrame(() => obj.circles.classed('hidden', false));
