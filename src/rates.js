@@ -8,7 +8,12 @@ import {
 } from './config.json';
 import { data, groupData } from './data';
 import dimensions from './dimensions';
-import { transitionIn, transitionOut, makeTransition } from './transitionLine';
+import {
+  transitionIn,
+  transitionOut,
+  makeTransition,
+  cleanTransition
+} from './transitionLine';
 
 export default function (selector) {
   const root = d3.select(selector);
@@ -233,6 +238,8 @@ export default function (selector) {
         d => y(getPercentage(d))
       )
       .curve(d3.curveCatmullRom);
+
+    cleanTransition(obj.line);
 
     const line = transition ? makeTransition(obj.line) : obj.line;
     line.attr('d', connectionLine(obj.groupData));
