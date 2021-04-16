@@ -249,7 +249,7 @@ export default function (selector) {
 
       if (shouldTransIn) {
         transitionIn(line);
-      } else {
+      } else if (transition) {
         l = line.transition().duration(500);
       }
 
