@@ -3,7 +3,7 @@ export default function (selector) {
   const innerX = { top: 0, right: 50, bottom: 30, left: 80 };
   const innerY = { top: 30, right: 80, bottom: 80, left: 30 };
 
-  const minWidth = 900;
+  const minWidth = 750;
   const containerWidth = selector.offsetWidth;
   const width = Math.max(containerWidth, minWidth) - margin.left - margin.right;
   const height = 468 - margin.top - margin.bottom;
