@@ -21,10 +21,6 @@ jobs:
       - run: yarn install
       - name: Build
         run: 'yarn build --base="/ifg-vis/"'
-      - name: Rename Legacy hashFiles('**/yarn.lock')
-        # see https://github.com/vitejs/vite/issues/2356
-        run: cd dist;
-          for file in **/*legacy*.js; do mv "$file" "$(echo $file | sed -e "s/-legacy.*.js/-legacy.js/")"; done
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

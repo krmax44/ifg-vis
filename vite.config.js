@@ -1,14 +1,10 @@
 import dsv from '@rollup/plugin-dsv';
-import legacy from '@vitejs/plugin-legacy';
 
 /**
  * @type {import('vite').UserConfig}
  */
 const config = {
-  plugins: [
-    dsv(),
-    legacy({ targets: ['defaults', 'not IE 11'], polyfills: false })
-  ],
+  plugins: [dsv()],
   build: {
     rollupOptions: {
       output: {
