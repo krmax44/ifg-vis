@@ -215,8 +215,8 @@ export default function (selector) {
 
     rects
       .attr('x', d => x(d.data.year) + innerX.left - 10)
-      .attr('y', d => y(d[1]) + innerY.top)
-      .attr('height', d => y(d[0]) - y(d[1]))
+      .attr('y', d => y(d[1] || 0) + innerY.top)
+      .attr('height', d => y(d[0] || 0) - y(d[1] || 0))
       .attr(
         'title',
         d =>
