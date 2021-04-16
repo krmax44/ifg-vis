@@ -78,7 +78,6 @@ export default function (selector) {
     .attr('class', 'badge badge-light selector-badge')
     .classed('group-lead', d => hasGroup(d[0]))
     .classed('group-member', d => d[0].includes(':'))
-    .attr('type', 'button')
     .attr('aria-role', 'button')
     .text(d => d[1])
     .on('click', (_e, d) => setChartView(d[0]));

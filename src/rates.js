@@ -162,7 +162,6 @@ export default function (selector) {
         'class',
         'badge badge-pill badge-light mb-1 mr-1 font-weight-normal'
       )
-      .attr('type', 'button')
       .attr('aria-role', 'button')
       .text(key)
       .attr('title', labels[key])
