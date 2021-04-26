@@ -185,7 +185,7 @@ export default function (selector) {
         .join('circle')
         .attr('class', 'dot circle');
 
-      BSN.initCallback(root.node());
+      setTimeout(() => BSN.initCallback(root.node()), 0);
     }
 
     updateCircles(obj, false);
