@@ -23,8 +23,14 @@ export default function (selector) {
   const activeGroups = new Set();
 
   let category = rateViews[0];
+
+  // pin percentage at 100 due to strange numbers in the 2014 stats regarding BMBF
+  // see https://forum.okfn.de/t/10-jahre-in-zahlen/1456
   const getPercentage = d =>
-    Math.round((d[category.divident] / d[category.divisor]) * 100);
+    Math.min(
+      Math.round((d[category.divident] / d[category.divisor]) * 100),
+      100
+    );
   const getAbsolute = d => d[category.divisor];
 
   const categorySelector = root.select('select').on('input', () => {
