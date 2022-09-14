@@ -7,24 +7,25 @@
     <title>Vite App</title>
     <link
       rel="stylesheet"
-      href="https://api.allorigins.win/raw?url=https://static.frag-den-staat.de/static/css/main.css"
+      href="https://static.frag-den-staat.de/static/css/main.css"
     />
   <script type="module" crossorigin src="/ifg-vis/index.js"></script>
   <link rel="modulepreload" href="/ifg-vis/vendor.js">
   <link rel="stylesheet" href="/ifg-vis/assets/index.css">
 </head>
+
   <body>
     <div id="app" class="container-fluid">
       <div class="vis-requests">
         <div class="row">
           <div class="selectors col-md-8"></div>
-          <div class="col-md-4 small">
-            <label
-              class="d-flex justify-content-md-end mt-1 mb-0 text-nowrap align-items-center"
-            >
-              <input type="checkbox" class="mr-1" id="bfr" />
-              ohne #Zensurheberrecht-Anfragen
-            </label>
+          <div class="col-md-4 small justify-content-end d-flex">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="bfr" />
+              <label class="" for="bfr">
+                ohne #Zensurheberrecht-Anfragen
+              </label>
+            </div>
           </div>
         </div>
         <div class="vis-canvas"></div>
@@ -33,7 +34,7 @@
       <div class="vis-rates">
         <div class="d-flex flex-column flex-md-row">
           <div class="d-flex justify-content-md-end mb-3 mb-md-0">
-            <select class="form-control form-control-sm"></select>
+            <select class="form-select form-select-sm"></select>
           </div>
           <div class="selectors order-md-first flex-grow-1"></div>
         </div>
@@ -41,7 +42,10 @@
       </div>
     </div>
 
-    <script src="https://api.allorigins.win/raw?url=https://static.frag-den-staat.de/static/js/main.js"></script>
+    <script
+      src="https://static.frag-den-staat.de/static/main.ac34a512d987.js"
+      type="module"
+    ></script>
     
   </body>
 </html>
