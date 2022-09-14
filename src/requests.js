@@ -75,7 +75,7 @@ export default function (selector) {
     .selectAll('span')
     .data(Object.entries(requestViews))
     .join('span')
-    .attr('class', 'badge badge-light selector-badge')
+    .attr('class', 'badge text-bg-light selector-badge')
     .classed('group-lead', d => hasGroup(d[0]))
     .classed('group-member', d => d[0].includes(':'))
     .attr('aria-role', 'button')
@@ -84,7 +84,7 @@ export default function (selector) {
 
   const updateSelectors = () =>
     selectors.classed(
-      'badge-dark',
+      'text-bg-dark',
       d => chartView === d[0] || `${chartView}:${subChartView}` === d[0]
     );
 
@@ -198,7 +198,7 @@ export default function (selector) {
     .data(d => d)
     .join('rect')
     .attr('width', 20)
-    .attr('data-toggle', 'tooltip')
+    .attr('data-bs-toggle', 'tooltip')
     .attr('data-trigger', 'click focus hover')
     .attr('class', 'fraction');
 
@@ -316,6 +316,4 @@ export default function (selector) {
     update(true);
     updateYAxis(y);
   }
-
-  window.addEventListener('load', () => BSN.initCallback(parent.node()));
 }

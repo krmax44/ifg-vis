@@ -147,7 +147,11 @@ export default function (selector) {
     }
 
     // reload bootstrap tooltips
-    window.addEventListener('load', () => BSN.initCallback(root.node()));
+    /* window.addEventListener('load', () => {
+      group.selector.each(el =>
+        window.bootstrap.Tooltip.getOrCreateInstance(el)
+      );
+    }); */
   }
 
   function makeGroup(key, groupData) {
@@ -164,14 +168,11 @@ export default function (selector) {
 
     const selector = groupSelectors
       .append('span')
-      .attr(
-        'class',
-        'badge badge-pill badge-light mb-1 mr-1 font-weight-normal'
-      )
+      .attr('class', 'badge rounded-pill text-bg-light mb-1 me-1 fw-normal')
       .attr('aria-role', 'button')
       .text(key)
       .attr('title', labels[key])
-      .attr('data-toggle', 'tooltip')
+      .attr('data-bs-toggle', 'tooltip')
       .on('click', () => toggleGroup(key));
 
     return { group, selector, groupData, line };
@@ -180,18 +181,20 @@ export default function (selector) {
   function activateGroup(key) {
     const obj = groups[key];
 
-    obj.selector.classed('badge-dark', true);
+    obj.selector.classed('text-bg-dark', true);
 
     if (!obj.circles) {
       obj.circles = obj.group.append('g').attr('class', 'circles hidden');
 
-      obj.circles
+      const circles = obj.circles
         .selectAll('circle.dot')
         .data(obj.groupData)
         .join('circle')
         .attr('class', 'dot circle');
 
-      setTimeout(() => BSN.initCallback(root.node()), 0);
+      window.requestAnimationFrame(() => {
+        circles.each(el => window.bootstrap.Tooltip.getOrCreateInstance(el));
+      });
     }
 
     updateCircles(obj, false);
@@ -203,7 +206,7 @@ export default function (selector) {
   function deactivateGroup(key) {
     const obj = groups[key];
 
-    obj.selector.classed('badge-dark', false);
+    obj.selector.classed('text-bg-dark', false);
     obj.circles.classed('hidden', true);
     transitionOut(obj.line).on('end');
   }
@@ -240,7 +243,7 @@ export default function (selector) {
             d
           )} Anfragen`
       )
-      .attr('data-toggle', 'tooltip');
+      .attr('data-bs-toggle', 'tooltip');
   }
 
   function updateLine(obj, transition = true) {
