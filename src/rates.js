@@ -148,9 +148,7 @@ export default function (selector) {
 
     // reload bootstrap tooltips
     /* window.addEventListener('load', () => {
-      group.selector.each(el =>
-        window.bootstrap.Tooltip.getOrCreateInstance(el)
-      );
+      group.selector
     }); */
   }
 
@@ -179,6 +177,7 @@ export default function (selector) {
   }
 
   function activateGroup(key) {
+    console.log('activating');
     const obj = groups[key];
 
     obj.selector.classed('text-bg-dark', true);
@@ -186,21 +185,24 @@ export default function (selector) {
     if (!obj.circles) {
       obj.circles = obj.group.append('g').attr('class', 'circles hidden');
 
-      const circles = obj.circles
+      obj.circles
         .selectAll('circle.dot')
         .data(obj.groupData)
         .join('circle')
         .attr('class', 'dot circle');
-
-      window.requestAnimationFrame(() => {
-        circles.each(el => window.bootstrap.Tooltip.getOrCreateInstance(el));
-      });
     }
 
     updateCircles(obj, false);
     updateLine(obj, false);
     transitionIn(obj.line);
-    window.requestAnimationFrame(() => obj.circles.classed('hidden', false));
+
+    window.requestAnimationFrame(() => {
+      obj.circles.classed('hidden', false);
+
+      obj.circles.selectAll('circle').each(function () {
+        window.bootstrap.Tooltip.getOrCreateInstance(this);
+      });
+    });
   }
 
   function deactivateGroup(key) {
