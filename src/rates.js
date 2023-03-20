@@ -31,7 +31,11 @@ export default function (selector) {
       Math.round((d[category.divident] / d[category.divisor]) * 100),
       100
     );
+
   const getAbsolute = d => d[category.divisor];
+
+  const getTitle = d =>
+    `${labels[d.name]}: ${getPercentage(d)} % von ${getAbsolute(d)} Anfragen`;
 
   const categorySelector = root.select('select').on('input', () => {
     const categoryIndex = parseInt(categorySelector.node().value, 10);
@@ -145,11 +149,6 @@ export default function (selector) {
     if (defaultInstitutions.includes(key)) {
       toggleGroup(key);
     }
-
-    // reload bootstrap tooltips
-    /* window.addEventListener('load', () => {
-      group.selector
-    }); */
   }
 
   function makeGroup(key, groupData) {
@@ -177,7 +176,6 @@ export default function (selector) {
   }
 
   function activateGroup(key) {
-    console.log('activating');
     const obj = groups[key];
 
     obj.selector.classed('text-bg-dark', true);
@@ -198,10 +196,6 @@ export default function (selector) {
 
     window.requestAnimationFrame(() => {
       obj.circles.classed('hidden', false);
-
-      obj.circles.selectAll('circle').each(function () {
-        window.bootstrap.Tooltip.getOrCreateInstance(this);
-      });
     });
   }
 
@@ -238,14 +232,13 @@ export default function (selector) {
       .attr('cx', d => x(d.year))
       .attr('r', d => circleRadius(d.count))
       .attr('cy', d => y(getPercentage(d)))
-      .attr(
-        'title',
-        d =>
-          `${labels[d.name]}: ${getPercentage(d)} % von ${getAbsolute(
-            d
-          )} Anfragen`
-      )
+      .attr('title', d => getTitle(d))
       .attr('data-bs-toggle', 'tooltip');
+
+    circles.each(function (d) {
+      const tooltip = window.bootstrap.Tooltip.getOrCreateInstance(this);
+      tooltip?.setContent({ '.tooltip-inner': getTitle(d) });
+    });
   }
 
   function updateLine(obj, transition = true) {
