@@ -14,7 +14,7 @@ const requestViewKeys = Object.keys(requestViews);
 let chartView = requestViewKeys[0];
 let subChartView;
 
-let filterBfr = false;
+let filterBfr = true;
 const shouldFilterBfr = d => filterBfr && d.name === 'BMEL' && d.year === 2019;
 const BFR_REQUESTS = 45245;
 
@@ -89,7 +89,7 @@ export default function (selector) {
     );
 
   root.select('#bfr').on('input', e => {
-    filterBfr = e.target.checked;
+    filterBfr = !e.target.checked;
     update(true);
     updateYAxis(y);
   });
