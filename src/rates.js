@@ -236,7 +236,7 @@ export default function (selector) {
       .attr('data-bs-toggle', 'tooltip');
 
     circles.each(function (d) {
-      const tooltip = window.bootstrap.Tooltip.getOrCreateInstance(this);
+      const tooltip = window.bootstrap?.Tooltip.getOrCreateInstance(this);
       tooltip?.setContent({ '.tooltip-inner': getTitle(d) });
     });
   }
