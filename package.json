@@ -7,13 +7,13 @@
     "serve": "vite preview"
   },
   "devDependencies": {
-    "@rollup/plugin-dsv": "^2.0.1",
-    "postcss-nested": "^5.0.5",
+    "@rollup/plugin-dsv": "^3.0.2",
+    "postcss-nested": "^6.0.1",
     "prettier": "^2.2.1",
-    "vite": "^2.1.5"
+    "vite": "^4.2.1"
   },
   "dependencies": {
-    "d3": "^6.6.2"
+    "d3": "^7.8.4"
   },
   "prettier": {
     "singleQuote": true,
